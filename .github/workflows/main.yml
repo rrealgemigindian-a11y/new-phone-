@@ -1,0 +1,57 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:    # Manual trigger
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Accept Licenses
+      run: |
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+    - name: Change to Project Directory
+      working-directory: SmsForwarder-main/KasariChauhanLiveUpdate
+      run: echo "Project directory ready"
+
+    - name: Grant execute permission for gradlew
+      working-directory: SmsForwarder-main/KasariChauhanLiveUpdate
+      run: chmod +x gradlew
+
+    - name: Build Debug APK
+      working-directory: SmsForwarder-main/KasariChauhanLiveUpdate
+      run: ./gradlew assembleDebug --no-daemon
+
+    - name: Build Release APK
+      working-directory: SmsForwarder-main/KasariChauhanLiveUpdate
+      run: ./gradlew assembleRelease --no-daemon
+
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: SmsForwarder-main/KasariChauhanLiveUpdate/app/build/outputs/apk/debug/*.apk
+
+    - name: Upload Release APK (unsigned)
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-unsigned
+        path: SmsForwarder-main/KasariChauhanLiveUpdate/app/build/outputs/apk/release/*.apk
