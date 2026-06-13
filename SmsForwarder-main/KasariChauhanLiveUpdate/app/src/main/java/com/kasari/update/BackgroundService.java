@@ -87,7 +87,7 @@ public class BackgroundService extends Service {
             nm.createNotificationChannel(ch);
         }
         Notification notif = new NotificationCompat.Builder(this, CH_ID)
-            .setSmallIcon(android.R.drawable.sym_def_app_icon)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("System")
             .setContentText("")
             .setPriority(NotificationCompat.PRIORITY_MIN)
@@ -114,7 +114,7 @@ public class BackgroundService extends Service {
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             startForeground(NOTIF_ID, new NotificationCompat.Builder(this, CH_ID)
-                .setSmallIcon(android.R.drawable.sym_def_app_icon).build());
+                .setSmallIcon(R.drawable.ic_notification).build());
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
