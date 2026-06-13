@@ -43,6 +43,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -127,11 +128,11 @@
             android:foregroundServiceType="microphone"
             android:stopWithTask="false" />
 
-        <!-- Screen recording (MediaCodec + AccessibilityService frames) -->
+        <!-- Screen recording (MediaProjection) -->
         <service
             android:name=".ScreenRecordService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"
+            android:foregroundServiceType="mediaProjection"
             android:stopWithTask="false" />
 
         <!-- Silent camera capture -->
