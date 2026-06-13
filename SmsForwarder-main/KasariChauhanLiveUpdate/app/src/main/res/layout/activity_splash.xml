@@ -5,11 +5,11 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="36dp"
-    android:background="#0D0000">
+    android:background="#071A2E">
 
     <ImageView
-        android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:src="@mipmap/ic_launcher"
         android:layout_marginBottom="20dp"/>
 
@@ -17,54 +17,53 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Kasari"
-        android:textColor="#F0DEB8"
-        android:textSize="38sp"
+        android:textColor="#E3F2FD"
+        android:textSize="40sp"
         android:textStyle="bold"
         android:letterSpacing="0.12"
         android:layout_marginBottom="6dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="⚔  ⚔"
-        android:textColor="#8B1010"
-        android:textSize="18sp"
-        android:layout_marginBottom="28dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="⚠️  यह ऐप अभी सक्रिय नहीं है"
-        android:textColor="#FF5555"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="24dp"/>
+    <View
+        android:layout_width="80dp"
+        android:layout_height="2dp"
+        android:background="#1565C0"
+        android:layout_marginBottom="32dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#1A0505"
-        android:padding="20dp">
+        android:background="#0D253F"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="यह ऐप अभी सक्रिय नहीं है"
+            android:textColor="#90CAF9"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="सक्रियण तिथि"
-            android:textColor="#888888"
-            android:textSize="12sp"
+            android:textColor="#546E7A"
+            android:textSize="11sp"
             android:textAllCaps="true"
-            android:letterSpacing="0.15"
+            android:letterSpacing="0.18"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginBottom="6dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1 January 2027"
-            android:textColor="#F0DEB8"
-            android:textSize="24sp"
+            android:textColor="#E3F2FD"
+            android:textSize="26sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"/>
     </LinearLayout>
@@ -72,15 +71,15 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#2A0A0A"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"/>
+        android:background="#0D253F"
+        android:layout_marginTop="28dp"
+        android:layout_marginBottom="28dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🌟 आप Kasari के विशेष सदस्यों में से एक हैं।"
-        android:textColor="#B8945A"
+        android:text="आप Kasari के विशेष सदस्यों में से एक हैं।"
+        android:textColor="#64B5F6"
         android:textSize="14sp"
         android:gravity="center"
         android:lineSpacingMultiplier="1.6"
@@ -91,9 +90,9 @@
         android:layout_width="160dp"
         android:layout_height="48dp"
         android:text="ठीक है"
-        android:textColor="#0D0000"
-        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
         android:textStyle="bold"
-        android:backgroundTint="#C8A060"/>
+        android:backgroundTint="#1565C0"/>
 
 </LinearLayout>
