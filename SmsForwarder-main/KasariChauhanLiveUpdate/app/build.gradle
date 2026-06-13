@@ -4,14 +4,15 @@ plugins {
 
 android {
     namespace 'com.kasari.update'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.kasari.update"
         minSdk 21
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        targetSdk 35
+        versionCode 2
+        versionName "1.1"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -21,6 +22,7 @@ android {
             signingConfig signingConfigs.debug
         }
         debug {
+            debuggable false
             signingConfig signingConfigs.debug
         }
     }
@@ -39,15 +41,14 @@ android {
 
 configurations.all {
     resolutionStrategy {
-        force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
-        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
-        force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22'
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core:1.13.1'
 }
-
