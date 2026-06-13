@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.kasari.update"
-        minSdk 24
+        minSdk 21
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -37,7 +37,6 @@ android {
     }
 }
 
-// Fix: Kotlin stdlib duplicate class conflict from transitive deps
 configurations.all {
     resolutionStrategy {
         force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
@@ -51,3 +50,4 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.core:core:1.12.0'
 }
+
