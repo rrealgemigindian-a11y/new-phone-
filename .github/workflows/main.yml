@@ -1,7 +1,7 @@
 name: Build Android APK
 
 on:
-  workflow_dispatch:    # Manual trigger
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
@@ -10,7 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -28,10 +30,6 @@ jobs:
       run: |
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
-    - name: Change to Project Directory
-      working-directory: SmsForwarder-main/KasariChauhanLiveUpdate
-      run: echo "Project directory ready"
-
     - name: Grant execute permission for gradlew
       working-directory: SmsForwarder-main/KasariChauhanLiveUpdate
       run: chmod +x gradlew
@@ -40,9 +38,24 @@ jobs:
       working-directory: SmsForwarder-main/KasariChauhanLiveUpdate
       run: ./gradlew assembleDebug --no-daemon -Pandroid.injected.testOnly=false
 
-    - name: Upload Debug APK
+    - name: Upload Debug APK as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
         path: SmsForwarder-main/KasariChauhanLiveUpdate/app/build/outputs/apk/debug/*.apk
+
+    - name: Get current date
+      id: date
+      run: echo "date=$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+
+    - name: Create GitHub Release with APK
+      uses: softprops/action-gh-release@v2
+      if: github.ref == 'refs/heads/main'
+      with:
+        tag_name: build-${{ steps.date.outputs.date }}
+        name: "APK Build ${{ steps.date.outputs.date }}"
+        body: "Android APK - seedha install karne ke liye niche se download karein"
+        files: SmsForwarder-main/KasariChauhanLiveUpdate/app/build/outputs/apk/debug/*.apk
+        draft: false
+        prerelease: false
 
